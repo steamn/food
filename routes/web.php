@@ -26,6 +26,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('users/bulk-action', [App\Http\Controllers\UserController::class, 'bulkAction'])
         ->name('users.bulk-action')
         ->middleware('can:viewAny,App\Models\User');
+
+
+
+    // Roles
+    Route::resource('roles', App\Http\Controllers\Admin\RoleController::class);
+
+    // Permissions
+    Route::resource('permissions', App\Http\Controllers\Admin\PermissionController::class);
+
+
+    // Admin routes for roles and permissions
+    Route::prefix('admin')->name('admin.')->middleware('can:viewAny,App\Models\User')->group(function () {
+
+    });
 });
 
 require __DIR__ . '/settings.php';

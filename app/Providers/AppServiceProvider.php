@@ -20,7 +20,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Register policies
-        $this->app->make('Illuminate\Contracts\Auth\Access\Gate')
-            ->policy(\App\Models\User::class, \App\Policies\UserPolicy::class);
+        $gate = $this->app->make('Illuminate\Contracts\Auth\Access\Gate');
+
+        $gate->policy(\App\Models\User::class, \App\Policies\UserPolicy::class);
+        $gate->policy(\Spatie\Permission\Models\Role::class, \App\Policies\RolePolicy::class);
+        $gate->policy(\Spatie\Permission\Models\Permission::class, \App\Policies\PermissionPolicy::class);
     }
 }

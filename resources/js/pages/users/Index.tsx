@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { UserDeleteModal } from '@/components/users/UserDeleteModal';
 import { UserFilters } from '@/components/users/UserFilters';
 import { UserTable } from '@/components/users/UserTable';
-import { AppLayout } from '@/layouts/AppLayout';
+import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { Filter, Plus, Trash2, UserCheck, UserX } from 'lucide-react';
 import { useState } from 'react';
