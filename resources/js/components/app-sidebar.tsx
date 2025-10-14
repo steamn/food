@@ -1,3 +1,4 @@
+import Users from '@/actions/App/Http/Controllers/UserController';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import {
@@ -19,6 +20,11 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Роли',
+        href: Users.index(),
         icon: LayoutGrid,
     },
 ];

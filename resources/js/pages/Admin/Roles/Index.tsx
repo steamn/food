@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { create, destroy, edit, index, show } from '@/routes/admin/roles';
+
 import {
     Select,
     SelectContent,
@@ -59,7 +61,7 @@ export default function Index({ roles, filters }: RolesPageProps) {
     const handleSearch = (value: string) => {
         setSearch(value);
         router.get(
-            route('admin.roles.index'),
+            index.url({ query: { ...filters, search: value } }),
             { ...filters, search: value },
             {
                 preserveState: true,
@@ -74,7 +76,13 @@ export default function Index({ roles, filters }: RolesPageProps) {
         setSortBy(column);
         setSortDirection(newDirection);
         router.get(
-            route('admin.roles.index'),
+            index.url({
+                query: {
+                    ...filters,
+                    sort_by: column,
+                    sort_direction: newDirection,
+                },
+            }),
             { ...filters, sort_by: column, sort_direction: newDirection },
             {
                 preserveState: true,
@@ -90,7 +98,7 @@ export default function Index({ roles, filters }: RolesPageProps) {
         }
 
         if (confirm(`Вы уверены, что хотите удалить роль "${role.name}"?`)) {
-            router.delete(route('admin.roles.destroy', role.id));
+            router.delete(destroy.url(role.id));
         }
     };
 
@@ -130,7 +138,7 @@ export default function Index({ roles, filters }: RolesPageProps) {
                             Управление ролями и разрешениями системы
                         </p>
                     </div>
-                    <Link href={route('admin.roles.create')}>
+                    <Link href={create.url()}>
                         <Button>
                             <Plus className="mr-2 h-4 w-4" />
                             Добавить роль
@@ -315,19 +323,13 @@ export default function Index({ roles, filters }: RolesPageProps) {
                                             <td className="p-4">
                                                 <div className="flex items-center gap-2">
                                                     <Link
-                                                        href={route(
-                                                            'admin.roles.show',
-                                                            role.id,
-                                                        )}
+                                                        href={show.url(role.id)}
                                                         className="text-blue-600 hover:text-blue-900"
                                                     >
                                                         <Eye className="h-4 w-4" />
                                                     </Link>
                                                     <Link
-                                                        href={route(
-                                                            'admin.roles.edit',
-                                                            role.id,
-                                                        )}
+                                                        href={edit.url(role.id)}
                                                         className="text-indigo-600 hover:text-indigo-900"
                                                     >
                                                         <Edit className="h-4 w-4" />

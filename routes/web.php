@@ -29,16 +29,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
 
-    // Roles
-    Route::resource('roles', App\Http\Controllers\Admin\RoleController::class);
-
-    // Permissions
-    Route::resource('permissions', App\Http\Controllers\Admin\PermissionController::class);
-
-
     // Admin routes for roles and permissions
     Route::prefix('admin')->name('admin.')->middleware('can:viewAny,App\Models\User')->group(function () {
+        // Roles
+        Route::resource('roles', App\Http\Controllers\Admin\RoleController::class);
 
+        // Permissions
+        Route::resource('permissions', App\Http\Controllers\Admin\PermissionController::class);
     });
 });
 
