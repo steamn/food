@@ -8,7 +8,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
+    Route::get('panel', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
 
@@ -27,10 +27,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('users.bulk-action')
         ->middleware('can:viewAny,App\Models\User');
 
-
-
     // Admin routes for roles and permissions
-    Route::prefix('admin')->name('admin.')->middleware('can:viewAny,App\Models\User')->group(function () {
+    Route::prefix('panel')->name('admin.')->middleware('can:viewAny,App\Models\User')->group(function () {
         // Roles
         Route::resource('roles', App\Http\Controllers\Admin\RoleController::class);
 
@@ -39,6 +37,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
-require __DIR__ . '/settings.php';
-require __DIR__ . '/auth.php';
-require __DIR__ . '/admin.php';
+require __DIR__.'/settings.php';
+require __DIR__.'/auth.php';
+require __DIR__.'/admin.php';

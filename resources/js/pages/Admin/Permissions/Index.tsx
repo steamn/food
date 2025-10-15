@@ -4,6 +4,15 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from '@/components/ui/pagination';
+import {
     Select,
     SelectContent,
     SelectItem,
@@ -11,6 +20,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
+import Permissions from '@/routes/admin/permissions';
 import { Head, Link, router } from '@inertiajs/react';
 import { ArrowUpDown, Edit, Eye, Plus, Search, Trash2 } from 'lucide-react';
 import { useState } from 'react';
@@ -29,10 +39,16 @@ interface Permission {
     roles_count: number;
 }
 
+interface PaginationLink {
+    url: string | null;
+    label: string;
+    active: boolean;
+}
+
 interface PermissionsPageProps {
     permissions: {
-        data: Permission[];
-        links: any[];
+        data?: Permission[];
+        links: PaginationLink[];
         meta: {
             current_page: number;
             from: number;
@@ -57,7 +73,7 @@ export default function Index({
     groups,
 }: PermissionsPageProps) {
     const [search, setSearch] = useState(filters.search || '');
-    const [group, setGroup] = useState(filters.group || '');
+    const [group, setGroup] = useState(filters.group || 'all');
     const [sortBy, setSortBy] = useState(filters.sort_by || 'name');
     const [sortDirection, setSortDirection] = useState(
         filters.sort_direction || 'asc',
@@ -66,7 +82,7 @@ export default function Index({
     const handleSearch = (value: string) => {
         setSearch(value);
         router.get(
-            route('admin.permissions.index'),
+            Permissions.index(),
             { ...filters, search: value },
             {
                 preserveState: true,
@@ -76,9 +92,10 @@ export default function Index({
     };
 
     const handleFilter = (key: string, value: string) => {
+        const filterValue = value === 'all' ? '' : value;
         router.get(
-            route('admin.permissions.index'),
-            { ...filters, [key]: value },
+            Permissions.index(),
+            { ...filters, [key]: filterValue },
             {
                 preserveState: true,
                 replace: true,
@@ -92,7 +109,7 @@ export default function Index({
         setSortBy(column);
         setSortDirection(newDirection);
         router.get(
-            route('admin.permissions.index'),
+            Permissions.index(),
             { ...filters, sort_by: column, sort_direction: newDirection },
             {
                 preserveState: true,
@@ -107,7 +124,7 @@ export default function Index({
                 `Вы уверены, что хотите удалить разрешение "${permission.name}"?`,
             )
         ) {
-            router.delete(route('admin.permissions.destroy', permission.id));
+            router.delete(Permissions.destroy(permission.id));
         }
     };
 
@@ -148,7 +165,7 @@ export default function Index({
                             Управление разрешениями системы
                         </p>
                     </div>
-                    <Link href={route('admin.permissions.create')}>
+                    <Link href={Permissions.create()}>
                         <Button>
                             <Plus className="mr-2 h-4 w-4" />
                             Добавить разрешение
@@ -188,7 +205,7 @@ export default function Index({
                                         <SelectValue placeholder="Все группы" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">
+                                        <SelectItem value="all">
                                             Все группы
                                         </SelectItem>
                                         {groups.map((groupName) => (
@@ -288,97 +305,110 @@ export default function Index({
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {permissions.data.map((permission) => (
-                                        <tr
-                                            key={permission.id}
-                                            className="border-t hover:bg-muted/50"
-                                        >
-                                            <td className="p-4">
-                                                <div className="font-medium">
-                                                    {permission.name}
-                                                </div>
-                                                <div className="text-sm text-muted-foreground">
-                                                    {permission.guard_name}
-                                                </div>
-                                            </td>
-                                            <td className="p-4">
-                                                {getGroupBadge(
-                                                    permission.group,
-                                                )}
-                                            </td>
-                                            <td className="p-4">
-                                                <div className="text-sm">
-                                                    {permission.roles_count}{' '}
-                                                    ролей
-                                                </div>
-                                                <div className="mt-1 flex flex-wrap gap-1">
-                                                    {permission.roles
-                                                        .slice(0, 3)
-                                                        .map((role) => (
+                                    {Array.isArray(permissions.data) &&
+                                    permissions.data.length > 0 ? (
+                                        permissions.data.map((permission) => (
+                                            <tr
+                                                key={permission.id}
+                                                className="border-t hover:bg-muted/50"
+                                            >
+                                                <td className="p-4">
+                                                    <div className="font-medium">
+                                                        {permission.name}
+                                                    </div>
+                                                    <div className="text-sm text-muted-foreground">
+                                                        {permission.guard_name}
+                                                    </div>
+                                                </td>
+                                                <td className="p-4">
+                                                    {getGroupBadge(
+                                                        permission.group,
+                                                    )}
+                                                </td>
+                                                <td className="p-4">
+                                                    <div className="text-sm">
+                                                        {permission.roles_count}{' '}
+                                                        ролей
+                                                    </div>
+                                                    <div className="mt-1 flex flex-wrap gap-1">
+                                                        {permission.roles
+                                                            .slice(0, 3)
+                                                            .map((role) => (
+                                                                <Badge
+                                                                    key={
+                                                                        role.id
+                                                                    }
+                                                                    variant="outline"
+                                                                    className="text-xs"
+                                                                >
+                                                                    {role.name}
+                                                                </Badge>
+                                                            ))}
+                                                        {permission.roles
+                                                            .length > 3 && (
                                                             <Badge
-                                                                key={role.id}
                                                                 variant="outline"
                                                                 className="text-xs"
                                                             >
-                                                                {role.name}
+                                                                +
+                                                                {permission
+                                                                    .roles
+                                                                    .length - 3}
                                                             </Badge>
-                                                        ))}
-                                                    {permission.roles.length >
-                                                        3 && (
-                                                        <Badge
-                                                            variant="outline"
-                                                            className="text-xs"
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="p-4">
+                                                    <div className="text-sm text-muted-foreground">
+                                                        {new Date(
+                                                            permission.created_at,
+                                                        ).toLocaleDateString(
+                                                            'ru-RU',
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="p-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <Link
+                                                            href={Permissions.show(
+                                                                permission.id,
+                                                            )}
+                                                            className="text-blue-600 hover:text-blue-900"
                                                         >
-                                                            +
-                                                            {permission.roles
-                                                                .length - 3}
-                                                        </Badge>
-                                                    )}
-                                                </div>
-                                            </td>
-                                            <td className="p-4">
-                                                <div className="text-sm text-muted-foreground">
-                                                    {new Date(
-                                                        permission.created_at,
-                                                    ).toLocaleDateString(
-                                                        'ru-RU',
-                                                    )}
-                                                </div>
-                                            </td>
-                                            <td className="p-4">
-                                                <div className="flex items-center gap-2">
-                                                    <Link
-                                                        href={route(
-                                                            'admin.permissions.show',
-                                                            permission.id,
-                                                        )}
-                                                        className="text-blue-600 hover:text-blue-900"
-                                                    >
-                                                        <Eye className="h-4 w-4" />
-                                                    </Link>
-                                                    <Link
-                                                        href={route(
-                                                            'admin.permissions.edit',
-                                                            permission.id,
-                                                        )}
-                                                        className="text-indigo-600 hover:text-indigo-900"
-                                                    >
-                                                        <Edit className="h-4 w-4" />
-                                                    </Link>
-                                                    <button
-                                                        onClick={() =>
-                                                            handleDelete(
-                                                                permission,
-                                                            )
-                                                        }
-                                                        className="text-red-600 hover:text-red-900"
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </button>
-                                                </div>
+                                                            <Eye className="h-4 w-4" />
+                                                        </Link>
+                                                        <Link
+                                                            href={Permissions.edit(
+                                                                permission.id,
+                                                            )}
+                                                            className="text-indigo-600 hover:text-indigo-900"
+                                                        >
+                                                            <Edit className="h-4 w-4" />
+                                                        </Link>
+                                                        <button
+                                                            onClick={() =>
+                                                                handleDelete(
+                                                                    permission,
+                                                                )
+                                                            }
+                                                            className="text-red-600 hover:text-red-900"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td
+                                                colSpan={5}
+                                                className="p-8 text-center text-muted-foreground"
+                                            >
+                                                Разрешения не найдены
                                             </td>
                                         </tr>
-                                    ))}
+                                    )}
                                 </tbody>
                             </table>
                         </div>
@@ -393,24 +423,81 @@ export default function Index({
                             {permissions.meta.to} из {permissions.meta.total}{' '}
                             разрешений
                         </div>
-                        <div className="flex items-center gap-2">
-                            {permissions.links.map((link, index) => (
-                                <Button
-                                    key={index}
-                                    variant={
-                                        link.active ? 'default' : 'outline'
-                                    }
-                                    size="sm"
-                                    disabled={!link.url}
-                                    onClick={() =>
-                                        link.url && router.get(link.url)
-                                    }
-                                    dangerouslySetInnerHTML={{
-                                        __html: link.label,
-                                    }}
-                                />
-                            ))}
-                        </div>
+                        <Pagination>
+                            <PaginationContent>
+                                {/* Previous button */}
+                                {permissions.links[0]?.url && (
+                                    <PaginationItem>
+                                        <PaginationPrevious
+                                            href={permissions.links[0].url}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                router.get(
+                                                    permissions.links[0].url!,
+                                                );
+                                            }}
+                                        />
+                                    </PaginationItem>
+                                )}
+
+                                {/* Page numbers */}
+                                {permissions.links
+                                    .slice(1, -1)
+                                    .map((link, index) => {
+                                        // Обрабатываем многоточие
+                                        if (link.label === '...') {
+                                            return (
+                                                <PaginationItem key={index + 1}>
+                                                    <PaginationEllipsis />
+                                                </PaginationItem>
+                                            );
+                                        }
+
+                                        // Обрабатываем обычные страницы
+                                        return (
+                                            <PaginationItem key={index + 1}>
+                                                <PaginationLink
+                                                    href={link.url || undefined}
+                                                    isActive={link.active}
+                                                    onClick={(e) => {
+                                                        if (link.url) {
+                                                            e.preventDefault();
+                                                            router.get(
+                                                                link.url,
+                                                            );
+                                                        }
+                                                    }}
+                                                >
+                                                    {link.label}
+                                                </PaginationLink>
+                                            </PaginationItem>
+                                        );
+                                    })}
+
+                                {/* Next button */}
+                                {permissions.links[permissions.links.length - 1]
+                                    ?.url && (
+                                    <PaginationItem>
+                                        <PaginationNext
+                                            href={
+                                                permissions.links[
+                                                    permissions.links.length - 1
+                                                ].url!
+                                            }
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                router.get(
+                                                    permissions.links[
+                                                        permissions.links
+                                                            .length - 1
+                                                    ].url!,
+                                                );
+                                            }}
+                                        />
+                                    </PaginationItem>
+                                )}
+                            </PaginationContent>
+                        </Pagination>
                     </div>
                 )}
             </div>

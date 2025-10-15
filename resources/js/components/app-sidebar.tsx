@@ -1,4 +1,5 @@
-import Users from '@/actions/App/Http/Controllers/UserController';
+import Permissions from '@/actions/App/Http/Controllers/Admin/PermissionController';
+import Roles from '@/actions/App/Http/Controllers/Admin/RoleController';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import {
@@ -24,7 +25,12 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Роли',
-        href: Users.index(),
+        href: Roles.index(),
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Права',
+        href: Permissions.index(),
         icon: LayoutGrid,
     },
 ];

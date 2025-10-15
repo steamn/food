@@ -12,115 +12,126 @@ use Spatie\Permission\Models\Permission;
 
 class PermissionController extends Controller
 {
-        /**
-         * Display a listing of the resource.
-         */
-        public function index(Request $request)
-        {
-                $query = Permission::query();
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+    {
+        $query = Permission::with('roles');
 
-                // Search
-                if ($request->filled('search')) {
-                        $search = $request->get('search');
-                        $query->where('name', 'like', "%{$search}%");
-                }
-
-                // Filter by group
-                if ($request->filled('group')) {
-                        $group = $request->get('group');
-                        $query->where('name', 'like', "{$group}%");
-                }
-
-                // Sort
-                $sortBy = $request->get('sort_by', 'name');
-                $sortDirection = $request->get('sort_direction', 'asc');
-                $query->orderBy($sortBy, $sortDirection);
-
-                $permissions = $query->paginate(20)->withQueryString();
-
-                // Get available groups for filter
-                $groups = Permission::all()
-                        ->map(function ($permission) {
-                                return explode(' ', $permission->name)[0];
-                        })
-                        ->unique()
-                        ->sort()
-                        ->values();
-
-                return Inertia::render('Admin/Permissions/Index', [
-                        'permissions' => PermissionResource::collection($permissions),
-                        'filters' => $request->only(['search', 'group', 'sort_by', 'sort_direction']),
-                        'groups' => $groups,
-                ]);
+        // Search
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where('name', 'like', "%{$search}%");
         }
 
-        /**
-         * Show the form for creating a new resource.
-         */
-        public function create()
-        {
-                return Inertia::render('Admin/Permissions/Create');
+        // Filter by group
+        if ($request->filled('group')) {
+            $group = $request->get('group');
+            $query->where('name', 'like', "{$group}%");
         }
 
-        /**
-         * Store a newly created resource in storage.
-         */
-        public function store(StorePermissionRequest $request)
-        {
-                Permission::create([
-                        'name' => $request->name,
-                        'guard_name' => 'web',
-                ]);
+        // Sort
+        $sortBy = $request->get('sort_by', 'name');
+        $sortDirection = $request->get('sort_direction', 'asc');
+        $query->orderBy($sortBy, $sortDirection);
 
-                return redirect()->route('admin.permissions.index')
-                        ->with('success', 'Разрешение успешно создано.');
-        }
+        $permissions = $query->paginate(20)->withQueryString();
 
-        /**
-         * Display the specified resource.
-         */
-        public function show(Permission $permission)
-        {
-                $permission->load('roles');
+        // Get available groups for filter
+        $groups = Permission::all()
+            ->map(function ($permission) {
+                return explode(' ', $permission->name)[0];
+            })
+            ->unique()
+            ->sort()
+            ->values();
 
-                return Inertia::render('Admin/Permissions/Show', [
-                        'permission' => new PermissionResource($permission),
-                ]);
-        }
+        return Inertia::render('Admin/Permissions/Index', [
+            'permissions' => [
+                'data' => PermissionResource::collection($permissions->items())->resolve(),
+                'links' => $permissions->linkCollection()->toArray(),
+                'meta' => [
+                    'current_page' => $permissions->currentPage(),
+                    'from' => $permissions->firstItem(),
+                    'last_page' => $permissions->lastPage(),
+                    'per_page' => $permissions->perPage(),
+                    'to' => $permissions->lastItem(),
+                    'total' => $permissions->total(),
+                ],
+            ],
+            'filters' => $request->only(['search', 'group', 'sort_by', 'sort_direction']),
+            'groups' => $groups,
+        ]);
+    }
 
-        /**
-         * Show the form for editing the specified resource.
-         */
-        public function edit(Permission $permission)
-        {
-                $permission->load('roles');
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return Inertia::render('Admin/Permissions/Create');
+    }
 
-                return Inertia::render('Admin/Permissions/Edit', [
-                        'permission' => new PermissionResource($permission),
-                ]);
-        }
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StorePermissionRequest $request)
+    {
+        Permission::create([
+            'name' => $request->name,
+            'guard_name' => 'web',
+        ]);
 
-        /**
-         * Update the specified resource in storage.
-         */
-        public function update(UpdatePermissionRequest $request, Permission $permission)
-        {
-                $permission->update([
-                        'name' => $request->name,
-                ]);
+        return redirect()->route('admin.permissions.index')
+            ->with('success', 'Разрешение успешно создано.');
+    }
 
-                return redirect()->route('admin.permissions.index')
-                        ->with('success', 'Разрешение успешно обновлено.');
-        }
+    /**
+     * Display the specified resource.
+     */
+    public function show(Permission $permission)
+    {
+        $permission->load('roles');
 
-        /**
-         * Remove the specified resource from storage.
-         */
-        public function destroy(Permission $permission)
-        {
-                $permission->delete();
+        return Inertia::render('Admin/Permissions/Show', [
+            'permission' => new PermissionResource($permission),
+        ]);
+    }
 
-                return redirect()->route('admin.permissions.index')
-                        ->with('success', 'Разрешение успешно удалено.');
-        }
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Permission $permission)
+    {
+        $permission->load('roles');
+
+        return Inertia::render('Admin/Permissions/Edit', [
+            'permission' => new PermissionResource($permission),
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdatePermissionRequest $request, Permission $permission)
+    {
+        $permission->update([
+            'name' => $request->name,
+        ]);
+
+        return redirect()->route('admin.permissions.index')
+            ->with('success', 'Разрешение успешно обновлено.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Permission $permission)
+    {
+        $permission->delete();
+
+        return redirect()->route('admin.permissions.index')
+            ->with('success', 'Разрешение успешно удалено.');
+    }
 }
