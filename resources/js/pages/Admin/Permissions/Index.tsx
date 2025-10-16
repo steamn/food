@@ -73,7 +73,7 @@ export default function Index({
     groups,
 }: PermissionsPageProps) {
     const [search, setSearch] = useState(filters.search || '');
-    const [group, setGroup] = useState(filters.group || 'all');
+    const [group] = useState(filters.group || 'all');
     const [sortBy, setSortBy] = useState(filters.sort_by || 'name');
     const [sortDirection, setSortDirection] = useState(
         filters.sort_direction || 'asc',
