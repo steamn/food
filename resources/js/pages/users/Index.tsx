@@ -1,4 +1,5 @@
-import { Badge } from '@/components/ui/badge';
+import Users from '@/actions/App/Http/Controllers/UserController';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { UserDeleteModal } from '@/components/users/UserDeleteModal';
@@ -24,15 +25,8 @@ interface User {
 interface UsersPageProps {
     users: {
         data: User[];
-        links: any[];
-        meta: {
-            current_page: number;
-            from: number;
-            last_page: number;
-            per_page: number;
-            to: number;
-            total: number;
-        };
+        links: (typeof Link)[];
+        meta: typeof Link;
     };
     filters: {
         search?: string;
@@ -52,7 +46,7 @@ export default function Index({ users, filters, roles }: UsersPageProps) {
 
     const handleSearch = (search: string) => {
         router.get(
-            route('users.index'),
+            Users.index(),
             { ...filters, search },
             {
                 preserveState: true,
@@ -63,7 +57,7 @@ export default function Index({ users, filters, roles }: UsersPageProps) {
 
     const handleFilter = (key: string, value: string) => {
         router.get(
-            route('users.index'),
+            Users.index(),
             { ...filters, [key]: value },
             {
                 preserveState: true,
@@ -78,7 +72,7 @@ export default function Index({ users, filters, roles }: UsersPageProps) {
                 ? 'desc'
                 : 'asc';
         router.get(
-            route('users.index'),
+            Users.index(),
             { ...filters, sort_by: column, sort_direction: direction },
             {
                 preserveState: true,
@@ -107,7 +101,7 @@ export default function Index({ users, filters, roles }: UsersPageProps) {
         if (selectedUsers.length === 0) return;
 
         router.post(
-            route('users.bulk-action'),
+            Users.bulkAction(),
             {
                 action,
                 user_ids: selectedUsers,
@@ -127,33 +121,13 @@ export default function Index({ users, filters, roles }: UsersPageProps) {
 
     const confirmDelete = () => {
         if (userToDelete) {
-            router.delete(route('users.destroy', userToDelete.id), {
+            router.delete(Users.destroy(userToDelete.id), {
                 onSuccess: () => {
                     setShowDeleteModal(false);
                     setUserToDelete(null);
                 },
             });
         }
-    };
-
-    const getStatusBadge = (isActive: boolean) => {
-        return isActive ? (
-            <Badge variant="default" className="bg-green-100 text-green-800">
-                Активен
-            </Badge>
-        ) : (
-            <Badge variant="secondary" className="bg-gray-100 text-gray-800">
-                Неактивен
-            </Badge>
-        );
-    };
-
-    const getRoleBadges = (roles: string[]) => {
-        return roles.map((role) => (
-            <Badge key={role} variant="outline" className="text-xs">
-                {role}
-            </Badge>
-        ));
     };
 
     return (
@@ -179,7 +153,7 @@ export default function Index({ users, filters, roles }: UsersPageProps) {
                             <Filter className="mr-2 h-4 w-4" />
                             Фильтры
                         </Button>
-                        <Link href={route('users.create')}>
+                        <Link href={Users.create()}>
                             <Button>
                                 <Plus className="mr-2 h-4 w-4" />
                                 Добавить пользователя
@@ -255,11 +229,11 @@ export default function Index({ users, filters, roles }: UsersPageProps) {
                     onDelete={handleDeleteUser}
                 />
 
-                {/* Pagination */}
-                {users.meta.last_page > 1 && (
+                {/* Pagination
+                {users.meta?.last_page > 1 && (
                     <div className="flex items-center justify-between">
                         <div className="text-sm text-muted-foreground">
-                            Показано {users.meta.from} - {users.meta.to} из{' '}
+                            Показано {users.meta?.from} - {users.meta?.to} из{' '}
                             {users.meta.total} пользователей
                         </div>
                         <div className="flex items-center gap-2">
@@ -281,7 +255,7 @@ export default function Index({ users, filters, roles }: UsersPageProps) {
                             ))}
                         </div>
                     </div>
-                )}
+                )} */}
             </div>
 
             {/* Delete Modal */}

@@ -4,7 +4,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import Roles from '@/routes/admin/roles';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { ArrowLeft, Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -32,12 +33,12 @@ interface EditRolePageProps {
 
 export default function Edit({ role, permissions }: EditRolePageProps) {
     const [selectedPermissions, setSelectedPermissions] = useState<string[]>(
-        role.permissions.map((p) => p.name),
+        role.permissions.map((p: Permission) => p.name),
     );
 
     const { data, setData, put, processing, errors } = useForm({
         name: role.name,
-        permissions: role.permissions.map((p) => p.name),
+        permissions: role.permissions.map((p: Permission) => p.name),
     });
 
     useEffect(() => {
@@ -46,7 +47,12 @@ export default function Edit({ role, permissions }: EditRolePageProps) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        put(route('admin.roles.update', role.id));
+        put(Roles.update(role.id).url);
+        router.visit(Roles.index().url, {
+            only: ['roles'],
+            preserveState: true,
+            replace: true,
+        });
     };
 
     const handlePermissionChange = (
@@ -104,7 +110,7 @@ export default function Edit({ role, permissions }: EditRolePageProps) {
             <div className="space-y-6">
                 {/* Header */}
                 <div className="flex items-center gap-4">
-                    <Link href={route('admin.roles.index')}>
+                    <Link href={Roles.index().url}>
                         <Button variant="outline" size="sm">
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Назад
@@ -208,7 +214,9 @@ export default function Edit({ role, permissions }: EditRolePageProps) {
                                                         )}
                                                         ref={(el) => {
                                                             if (el) {
-                                                                el.indeterminate =
+                                                                (
+                                                                    el as HTMLInputElement
+                                                                ).indeterminate =
                                                                     isGroupPartiallySelected(
                                                                         group,
                                                                     );
@@ -286,7 +294,7 @@ export default function Edit({ role, permissions }: EditRolePageProps) {
 
                     {/* Actions */}
                     <div className="flex items-center justify-end gap-4">
-                        <Link href={route('admin.roles.index')}>
+                        <Link href={Roles.index().url}>
                             <Button variant="outline" type="button">
                                 Отмена
                             </Button>

@@ -95,7 +95,7 @@ class RoleController extends Controller
                 $role->load('permissions');
 
                 return Inertia::render('Admin/Roles/Edit', [
-                        'role' => new RoleResource($role),
+                        'role' => $role,
                         'permissions' => $permissions,
                 ]);
         }

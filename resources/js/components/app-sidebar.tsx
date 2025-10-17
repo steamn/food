@@ -1,5 +1,6 @@
 import Permissions from '@/actions/App/Http/Controllers/Admin/PermissionController';
 import Roles from '@/actions/App/Http/Controllers/Admin/RoleController';
+import Users from '@/actions/App/Http/Controllers/UserController';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import {
@@ -14,7 +15,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, User } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -22,6 +23,11 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Пользователи',
+        href: Users.index(),
+        icon: User,
     },
     {
         title: 'Роли',

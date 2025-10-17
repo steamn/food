@@ -1,3 +1,4 @@
+import Users from '@/actions/App/Http/Controllers/UserController';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -41,25 +42,12 @@ interface UserTableProps {
 
 export function UserTable({
     users,
-    filters,
     selectedUsers,
     onSelectUser,
     onSelectAll,
     onSort,
     onDelete,
 }: UserTableProps) {
-    const getStatusBadge = (isActive: boolean) => {
-        return isActive ? (
-            <Badge variant="default" className="bg-green-100 text-green-800">
-                Активен
-            </Badge>
-        ) : (
-            <Badge variant="secondary" className="bg-gray-100 text-gray-800">
-                Неактивен
-            </Badge>
-        );
-    };
-
     const getRoleBadges = (roles: string[]) => {
         return roles.map((role) => (
             <Badge key={role} variant="outline" className="mr-1 text-xs">
@@ -92,7 +80,7 @@ export function UserTable({
                                 <Checkbox
                                     checked={isAllSelected}
                                     ref={(el) => {
-                                        if (el)
+                                        if (el && 'indeterminate' in el)
                                             el.indeterminate =
                                                 isPartiallySelected;
                                     }}
@@ -129,16 +117,7 @@ export function UserTable({
                                     <ArrowUpDown className="ml-2 h-4 w-4" />
                                 </Button>
                             </th>
-                            <th className="p-4 text-left">
-                                <Button
-                                    variant="ghost"
-                                    onClick={() => onSort('is_active')}
-                                    className="h-auto p-0 font-semibold"
-                                >
-                                    Статус
-                                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                                </Button>
-                            </th>
+
                             <th className="p-4 text-left">
                                 <Button
                                     variant="ghost"
@@ -212,9 +191,7 @@ export function UserTable({
                                         {getRoleBadges(user.roles)}
                                     </div>
                                 </td>
-                                <td className="p-4">
-                                    {getStatusBadge(user.is_active)}
-                                </td>
+
                                 <td className="p-4">
                                     <div className="text-sm text-muted-foreground">
                                         {new Date(
@@ -241,10 +218,8 @@ export function UserTable({
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuItem asChild>
                                                 <Link
-                                                    href={route(
-                                                        'users.show',
-                                                        user.id,
-                                                    )}
+                                                    className="cursor-pointer"
+                                                    href={Users.show(user.id)}
                                                 >
                                                     <Eye className="mr-2 h-4 w-4" />
                                                     Просмотр
@@ -252,10 +227,8 @@ export function UserTable({
                                             </DropdownMenuItem>
                                             <DropdownMenuItem asChild>
                                                 <Link
-                                                    href={route(
-                                                        'users.edit',
-                                                        user.id,
-                                                    )}
+                                                    className="cursor-pointer"
+                                                    href={Users.edit(user.id)}
                                                 >
                                                     <Edit className="mr-2 h-4 w-4" />
                                                     Редактировать
@@ -263,7 +236,7 @@ export function UserTable({
                                             </DropdownMenuItem>
                                             <DropdownMenuItem
                                                 onClick={() => onDelete(user)}
-                                                className="text-red-600"
+                                                className="cursor-pointer text-red-600"
                                             >
                                                 <Trash2 className="mr-2 h-4 w-4" />
                                                 Удалить

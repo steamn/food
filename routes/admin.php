@@ -10,18 +10,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
                 return Inertia::render('admin/dashboard');
         })->name('dashboard');
 
-        // Управление пользователями
-        Route::get('/users', function () {
-                return Inertia::render('admin/users/index');
-        })->name('users.index');
 
-        Route::get('/users/create', function () {
-                return Inertia::render('admin/users/create');
-        })->name('users.create');
-
-        Route::get('/users/{user}/edit', function () {
-                return Inertia::render('admin/users/edit');
-        })->name('users.edit');
 
         // Управление заказами
         Route::get('/orders', function () {
