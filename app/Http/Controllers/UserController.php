@@ -93,10 +93,57 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        $user->load(['roles', 'courierProfile', 'preferences', 'addresses', 'orders']);
+        $user->load(['roles', 'courierProfile', 'preferences']);
 
         return Inertia::render('users/Show', [
-            'user' => new UserResource($user),
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'avatar' => $user->avatar,
+                'bio' => $user->bio,
+                'birth_date' => $user->birth_date?->format('Y-m-d'),
+                'gender' => $user->gender,
+                'default_address' => $user->default_address,
+                'default_latitude' => $user->default_latitude,
+                'default_longitude' => $user->default_longitude,
+                'email_notifications' => $user->email_notifications,
+                'sms_notifications' => $user->sms_notifications,
+                'push_notifications' => $user->push_notifications,
+                'is_active' => $user->is_active,
+                'created_at' => $user->created_at->format('Y-m-d H:i:s'),
+                'updated_at' => $user->updated_at->format('Y-m-d H:i:s'),
+                'roles' => $user->roles->map(fn($role) => ['name' => $role->name]),
+                'courier_profile' => $user->courierProfile ? [
+                    'first_name' => $user->courierProfile->first_name,
+                    'last_name' => $user->courierProfile->last_name,
+                    'middle_name' => $user->courierProfile->middle_name,
+                    'phone' => $user->courierProfile->phone,
+                    'email' => $user->courierProfile->email,
+                    'transport_type' => $user->courierProfile->transport_type,
+                    'transport_model' => $user->courierProfile->transport_model,
+                    'transport_number' => $user->courierProfile->transport_number,
+                    'transport_color' => $user->courierProfile->transport_color,
+                    'status' => $user->courierProfile->status,
+                    'rating' => $user->courierProfile->rating,
+                    'total_deliveries' => $user->courierProfile->total_deliveries,
+                    'total_earnings' => $user->courierProfile->total_earnings,
+                ] : null,
+                'preferences' => $user->preferences ? [
+                    'language' => $user->preferences->language,
+                    'timezone' => $user->preferences->timezone,
+                    'currency' => $user->preferences->currency,
+                    'theme' => $user->preferences->theme,
+                    'compact_mode' => $user->preferences->compact_mode,
+                    'default_delivery_time' => $user->preferences->default_delivery_time,
+                    'auto_confirm_orders' => $user->preferences->auto_confirm_orders,
+                    'max_order_amount' => $user->preferences->max_order_amount,
+                    'show_phone' => $user->preferences->show_phone,
+                    'show_email' => $user->preferences->show_email,
+                    'allow_marketing' => $user->preferences->allow_marketing,
+                ] : null,
+            ],
         ]);
     }
 

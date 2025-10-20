@@ -155,7 +155,7 @@ export default function Index({ users, filters, roles }: UsersPageProps) {
                         </Button>
                         <Link href={Users.create()}>
                             <Button>
-                                <Plus className="mr-2 h-4 w-4" />
+                                <Plus className="mr-2 h-4 w-4 cursor-pointer" />
                                 Добавить пользователя
                             </Button>
                         </Link>

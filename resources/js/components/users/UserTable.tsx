@@ -9,8 +9,8 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Link } from '@inertiajs/react';
-import { ArrowUpDown, Edit, Eye, MoreHorizontal, Trash2 } from 'lucide-react';
+import { Link, router } from '@inertiajs/react';
+import { ArrowUpDown, Edit, MoreHorizontal, Trash2 } from 'lucide-react';
 
 interface User {
     id: number;
@@ -145,7 +145,10 @@ export function UserTable({
                         {users.map((user) => (
                             <tr
                                 key={user.id}
-                                className="border-t hover:bg-muted/50"
+                                className="cursor-pointer border-t hover:bg-muted/50"
+                                onClick={() =>
+                                    router.visit(Users.show(user.id))
+                                }
                             >
                                 <td className="p-4">
                                     <Checkbox
@@ -216,15 +219,6 @@ export function UserTable({
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
-                                            <DropdownMenuItem asChild>
-                                                <Link
-                                                    className="cursor-pointer"
-                                                    href={Users.show(user.id)}
-                                                >
-                                                    <Eye className="mr-2 h-4 w-4" />
-                                                    Просмотр
-                                                </Link>
-                                            </DropdownMenuItem>
                                             <DropdownMenuItem asChild>
                                                 <Link
                                                     className="cursor-pointer"

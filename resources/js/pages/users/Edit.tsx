@@ -18,54 +18,99 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, Save, Settings, Truck, User } from 'lucide-react';
 import { useState } from 'react';
 
-interface CreateUserPageProps {
+interface EditUserPageProps {
+    user: {
+        id: number;
+        name: string;
+        email: string;
+        phone: string | null;
+        avatar: string | null;
+        bio: string | null;
+        birth_date: string | null;
+        gender: string | null;
+        default_address: string | null;
+        default_latitude: string | null;
+        default_longitude: string | null;
+        email_notifications: boolean;
+        sms_notifications: boolean;
+        push_notifications: boolean;
+        is_active: boolean;
+        roles: Array<{ name: string }>;
+        courier_profile?: {
+            first_name: string;
+            last_name: string;
+            middle_name: string | null;
+            phone: string;
+            email: string;
+            transport_type: string;
+            transport_model: string | null;
+            transport_number: string | null;
+            transport_color: string | null;
+        } | null;
+        preferences?: {
+            language: string;
+            timezone: string;
+            currency: string;
+            theme: string;
+            compact_mode: boolean;
+            default_delivery_time: number;
+            auto_confirm_orders: boolean;
+            max_order_amount: string | null;
+            show_phone: boolean;
+            show_email: boolean;
+            allow_marketing: boolean;
+        } | null;
+    };
     roles: string[];
 }
 
-export default function Create({ roles }: CreateUserPageProps) {
-    const [showCourierProfile, setShowCourierProfile] = useState(false);
+export default function Edit({ user, roles }: EditUserPageProps) {
+    const [showCourierProfile, setShowCourierProfile] = useState(
+        user.roles.some((role) => role.name === 'courier'),
+    );
 
-    const { data, setData, post, processing, errors, reset } = useForm({
-        name: '',
-        email: '',
+    const { data, setData, put, processing, errors, reset } = useForm({
+        name: user.name || '',
+        email: user.email || '',
         password: '',
         password_confirmation: '',
-        phone: '',
+        phone: user.phone || '',
         avatar: null as File | null,
-        bio: '',
-        birth_date: '',
-        gender: '',
-        default_address: '',
-        default_latitude: '',
-        default_longitude: '',
-        email_notifications: true,
-        sms_notifications: true,
-        push_notifications: true,
-        is_active: true,
-        roles: [] as string[],
+        bio: user.bio || '',
+        birth_date: user.birth_date || '',
+        gender: user.gender || '',
+        default_address: user.default_address || '',
+        default_latitude: user.default_latitude || '',
+        default_longitude: user.default_longitude || '',
+        email_notifications: user.email_notifications,
+        sms_notifications: user.sms_notifications,
+        push_notifications: user.push_notifications,
+        is_active: user.is_active,
+        roles: user.roles.map((role) => role.name),
         courier_profile: {
-            first_name: '',
-            last_name: '',
-            middle_name: '',
-            phone: '',
-            email: '',
-            transport_type: '',
-            transport_model: '',
-            transport_number: '',
-            transport_color: '',
+            first_name: user.courier_profile?.first_name || '',
+            last_name: user.courier_profile?.last_name || '',
+            middle_name: user.courier_profile?.middle_name || '',
+            phone: user.courier_profile?.phone || '',
+            email: user.courier_profile?.email || '',
+            transport_type: user.courier_profile?.transport_type || '',
+            transport_model: user.courier_profile?.transport_model || '',
+            transport_number: user.courier_profile?.transport_number || '',
+            transport_color: user.courier_profile?.transport_color || '',
         },
         preferences: {
-            language: 'ru',
-            timezone: 'Europe/Moscow',
-            currency: 'RUB',
-            theme: 'light',
-            compact_mode: false,
-            default_delivery_time: 30,
-            auto_confirm_orders: false,
-            max_order_amount: '',
-            show_phone: false,
-            show_email: false,
-            allow_marketing: true,
+            language: user.preferences?.language || 'ru',
+            timezone: user.preferences?.timezone || 'Europe/Moscow',
+            currency: user.preferences?.currency || 'RUB',
+            theme: user.preferences?.theme || 'light',
+            compact_mode: user.preferences?.compact_mode || false,
+            default_delivery_time:
+                user.preferences?.default_delivery_time || 30,
+            auto_confirm_orders: user.preferences?.auto_confirm_orders || false,
+            max_order_amount: user.preferences?.max_order_amount || '',
+            show_phone: user.preferences?.show_phone || false,
+            show_email: user.preferences?.show_email || false,
+            allow_marketing: user.preferences?.allow_marketing || true,
         },
     });
 
@@ -87,10 +132,13 @@ export default function Create({ roles }: CreateUserPageProps) {
             }
         });
 
-        post(route('users.store'), {
+        // Добавляем _method для Laravel
+        formData.append('_method', 'PUT');
+
+        put(route('users.update', user.id), {
             forceFormData: true,
             onSuccess: () => {
-                reset();
+                // Не сбрасываем форму при успешном обновлении
             },
         });
     };
@@ -114,7 +162,7 @@ export default function Create({ roles }: CreateUserPageProps) {
 
     return (
         <AppLayout>
-            <Head title="Создать пользователя" />
+            <Head title="Редактировать пользователя" />
 
             <div className="space-y-6">
                 {/* Header */}
@@ -127,10 +175,10 @@ export default function Create({ roles }: CreateUserPageProps) {
                     </Link>
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">
-                            Создать пользователя
+                            Редактировать пользователя
                         </h1>
                         <p className="text-muted-foreground">
-                            Добавить нового пользователя в систему
+                            Изменить данные пользователя {user.name}
                         </p>
                     </div>
                 </div>
@@ -216,7 +264,7 @@ export default function Create({ roles }: CreateUserPageProps) {
 
                                         <div className="space-y-2">
                                             <Label htmlFor="password">
-                                                Пароль *
+                                                Новый пароль
                                             </Label>
                                             <Input
                                                 id="password"
@@ -233,6 +281,7 @@ export default function Create({ roles }: CreateUserPageProps) {
                                                         ? 'border-red-500'
                                                         : ''
                                                 }
+                                                placeholder="Оставьте пустым, чтобы не изменять"
                                             />
                                             {errors.password && (
                                                 <p className="text-sm text-red-500">
@@ -243,7 +292,7 @@ export default function Create({ roles }: CreateUserPageProps) {
 
                                         <div className="space-y-2">
                                             <Label htmlFor="password_confirmation">
-                                                Подтверждение пароля *
+                                                Подтверждение пароля
                                             </Label>
                                             <Input
                                                 id="password_confirmation"
@@ -262,6 +311,7 @@ export default function Create({ roles }: CreateUserPageProps) {
                                                         ? 'border-red-500'
                                                         : ''
                                                 }
+                                                placeholder="Оставьте пустым, если не меняете пароль"
                                             />
                                             {errors.password_confirmation && (
                                                 <p className="text-sm text-red-500">
@@ -1019,8 +1069,8 @@ export default function Create({ roles }: CreateUserPageProps) {
                         >
                             <Save className="mr-2 h-4 w-4" />
                             {processing
-                                ? 'Создание...'
-                                : 'Создать пользователя'}
+                                ? 'Сохранение...'
+                                : 'Сохранить изменения'}
                         </Button>
                     </div>
                 </form>
