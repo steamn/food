@@ -35,7 +35,7 @@ interface EditUserPageProps {
         sms_notifications: boolean;
         push_notifications: boolean;
         is_active: boolean;
-        roles: Array<{ name: string }>;
+        roles?: Array<{ name: string }>;
         courier_profile?: {
             first_name: string;
             last_name: string;
@@ -66,7 +66,7 @@ interface EditUserPageProps {
 
 export default function Edit({ user, roles }: EditUserPageProps) {
     const [showCourierProfile, setShowCourierProfile] = useState(
-        user.roles.some((role) => role.name === 'courier'),
+        user.roles?.some((role) => role.name === 'courier') || false,
     );
 
     const { data, setData, put, processing, errors, reset } = useForm({
@@ -86,7 +86,7 @@ export default function Edit({ user, roles }: EditUserPageProps) {
         sms_notifications: user.sms_notifications,
         push_notifications: user.push_notifications,
         is_active: user.is_active,
-        roles: user.roles.map((role) => role.name),
+        roles: user.roles?.map((role) => role.name) || [],
         courier_profile: {
             first_name: user.courier_profile?.first_name || '',
             last_name: user.courier_profile?.last_name || '',
@@ -135,7 +135,7 @@ export default function Edit({ user, roles }: EditUserPageProps) {
         // Добавляем _method для Laravel
         formData.append('_method', 'PUT');
 
-        put(route('users.update', user.id), {
+        put(Users.update(user.id), {
             forceFormData: true,
             onSuccess: () => {
                 // Не сбрасываем форму при успешном обновлении
