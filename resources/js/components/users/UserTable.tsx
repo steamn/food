@@ -194,7 +194,6 @@ export function UserTable({
                                         {getRoleBadges(user.roles)}
                                     </div>
                                 </td>
-
                                 <td className="p-4">
                                     <div className="text-sm text-muted-foreground">
                                         {new Date(
@@ -214,12 +213,22 @@ export function UserTable({
                                 <td className="p-4">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="sm">
+                                            <Button 
+                                                variant="ghost" 
+                                                size="sm"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
                                                 <MoreHorizontal className="h-4 w-4" />
                                             </Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuItem asChild>
+                                        <DropdownMenuContent 
+                                            align="end"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            <DropdownMenuItem 
+                                                asChild
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
                                                 <Link
                                                     className="cursor-pointer"
                                                     href={Users.edit(user.id)}
@@ -229,7 +238,10 @@ export function UserTable({
                                                 </Link>
                                             </DropdownMenuItem>
                                             <DropdownMenuItem
-                                                onClick={() => onDelete(user)}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onDelete(user);
+                                                }}
                                                 className="cursor-pointer text-red-600"
                                             >
                                                 <Trash2 className="mr-2 h-4 w-4" />
