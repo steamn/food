@@ -213,21 +213,25 @@ export function UserTable({
                                 <td className="p-4">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button 
-                                                variant="ghost" 
+                                            <Button
+                                                variant="ghost"
                                                 size="sm"
-                                                onClick={(e) => e.stopPropagation()}
+                                                onClick={(e) =>
+                                                    e.stopPropagation()
+                                                }
                                             >
                                                 <MoreHorizontal className="h-4 w-4" />
                                             </Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent 
+                                        <DropdownMenuContent
                                             align="end"
                                             onClick={(e) => e.stopPropagation()}
                                         >
-                                            <DropdownMenuItem 
+                                            <DropdownMenuItem
                                                 asChild
-                                                onClick={(e) => e.stopPropagation()}
+                                                onClick={(e) =>
+                                                    e.stopPropagation()
+                                                }
                                             >
                                                 <Link
                                                     className="cursor-pointer"
